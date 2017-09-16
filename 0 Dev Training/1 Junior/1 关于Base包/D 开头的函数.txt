@@ -1,0 +1,54 @@
+. x. diag()   -----   解开或替换矩阵的对角线， 或者构造一个对角线矩阵
+
+   diag(x =1, nrow, ncol)
+   diag(x) <- value
+
+ 例子:
+
+     require(stats)
+     dim(diag(3))
+     diag(10, 3, 4) # guess what?
+     all(diag(1:3) == {m <- matrix(0,3,3); diag(m) <- 1:3; m})
+
+     diag(var(M <- cbind(X = 1:5, Y = stats::rnorm(5))))
+     #-> vector with names "X" and "Y"
+
+     rownames(M) <- c(colnames(M), rep("", 3));
+     M; diag(M) #  named as well
+
+. xx. dim() ----  对象的维度, 重新定义对象的维度， 实际上就是数据的重组。
+
+    dim(x)
+    dim(x) <- value
+
+  例子:
+
+       x <- 1:12 ; dim(x) <- c(3,4)
+       x
+
+       # simple versions of nrow and ncol could be defined as follows， 用下面的方法可以简单实现nrow, ncol功能
+       nrow0 <- function(x) dim(x)[1]        
+       ncol0 <- function(x) dim(x)[2]
+
+. .dimnames()  -- 获取或 设置 对象的维度名称
+
+   dimnames(x)
+   dimnames(x) <- value
+
+   provideDimnames( x, sep = "", base = list(LETTERS) )
+
+   例子:
+
+       ## simple versions of rownames and colnames
+       ## could be defined as follows
+       rownames0 <- function(x) dimnames(x)[[1]]      # 返回 x 对象的行名   如果后面赋值list， 那就是修改行名
+       colnames0 <- function(x) dimnames(x)[[2]]      # 返回 x 对象的列名   如果后面赋值list， 那就是修改列名
+
+       (dn <- dimnames(A <- provideDimnames(N <- array(1:24, dim = 2:4))))
+       A0 <- A; dimnames(A)[2:3] <- list(NULL)
+       stopifnot(identical(A0, provideDimnames(A)))
+       strd <- function(x) utils::str(dimnames(x))
+       strd(provideDimnames(A, base= list(letters[-(1:9)], tail(LETTERS))))
+       strd(provideDimnames(N, base= list(letters[-(1:9)], tail(LETTERS)))) # recycling
+       strd(provideDimnames(A, base= list(c("AA","BB")))) # recycling on both levels
+

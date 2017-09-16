@@ -1,0 +1,5 @@
+左件的值发送给右件的表达式，并作为右件表达式函数的第一个参数。
+anscombe_tidy <- anscombe %>%mutate(observation = seq_len(n()))
+以上代码等价于
+anscombe_tidy=mutate(anscombe,observation = seq_len(n()))
+管道函数还是很好哒，好处我就不说了^.^ 自己体会

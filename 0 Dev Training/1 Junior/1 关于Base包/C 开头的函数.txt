@@ -1,0 +1,39 @@
+.  x. cbind() ------ 通过行 或 列 合并 R  对象
+
+   cbind(..., deparse.level = 1 )
+   rbind(..., deparse.level = 1 )
+   ## S3 method for class 'data.frame'
+   rbind(..., deparse.level = 1, make.row.names = TRUE )
+
+   例子:
+
+       m <- cbind(1, 1:7) # the '1' (= shorter vector) is recycled
+       m
+       m <- cbind(m, 8:14)[, c(1, 3, 2)] # insert a column    ,  后面的 c(1,3,2) 是指定前面的向量对应的是第几列，比如
+       m                                                      #  8:14 对应的是第2列
+       cbind(1:7, diag(3)) # vector is subset -> warning，警告的原因是, diag(3) 是3x3的矩阵，对角线是1，而1:7 不止3行
+
+       cbind(0, rbind(1, 1:3))
+       cbind(I = 0, X = rbind(a = 1, b = 1:3))  # use some names, 指定了列名， 行名
+       xx <- data.frame(I = rep(0,2))
+       cbind(xx, X = rbind(a = 1, b = 1:3))   # named differently   不同的命名方式
+
+       cbind(0, matrix(1, nrow = 0, ncol = 4)) #> Warning (making sense)
+       dim(cbind(0, matrix(1, nrow = 2, ncol = 0))) #-> 2 x 1
+
+       ## deparse.level
+       dd <- 10
+       rbind(1:4, c = 2, "a++" = 10, dd, deparse.level = 0) # middle 2 rownames
+       rbind(1:4, c = 2, "a++" = 10, dd, deparse.level = 1) # 3 rownames (default)
+       rbind(1:4, c = 2, "a++" = 10, dd, deparse.level = 2) # 4 rownames
+
+       ## cheap row names:
+       b0 <- gl(3,4, labels=letters[1:3])
+       bf <- setNames(b0, paste0("o", seq_along(b0)))
+       df  <- data.frame(a = 1, B = b0, f = gl(4,3))
+       df. <- data.frame(a = 1, B = bf, f = gl(4,3))
+       new <- data.frame(a = 8, B ="B", f = "1")
+       (df1  <- rbind(df , new))
+       (df.1 <- rbind(df., new))
+       stopifnot(identical(df1, rbind(df,  new, make.row.names=FALSE)),
+                     identical(df1, rbind(df., new, make.row.names=FALSE)))

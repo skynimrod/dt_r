@@ -1,0 +1,23 @@
+. 基本包 的函数
+
+  library(help = "base") 可以获取帮助
+
+ 1. rchisq()   密度分布函数
+
+    加前缀'd'代表密度(density)，'p'代表CDF，'q'代表分位函数，'r'代表模拟（随即散布）
+
+ 2. print()   显示当前变量或常量的值
+
+    set.seed(10086)
+    n <- 200
+    df <- 6
+    X <- rchisq(n,df)
+
+    xllim = 0
+    xrlim = round(max(X)) + 2
+    
+    print(X)
+
+ 3. .Device   
+
+    罗列出 打开或活跃 的图形设备

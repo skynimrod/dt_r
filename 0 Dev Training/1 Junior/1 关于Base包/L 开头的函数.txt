@@ -1,0 +1,23 @@
+. ls() ---- 显示 在workspace 中用户定义的数据集和函数. 
+
+  ls(name, pos = -1L, envir = as.environment(pos), all.names=FALSE, pattern, sorted = TRUE )
+
+  objects( name, pos = -1L, envir = as.environment(pos), all.names = FALSE, pattern, sorted = TRUE )
+
+  例子：
+
+      .Ob <- 1
+      ls(pattern = "O")
+      ls(pattern= "O", all.names = TRUE)    # also shows ".[foo]"
+
+      # shows an empty list because inside myfunc no variables are defined
+      myfunc <- function() {ls()}
+      myfunc()
+
+      # define a local variable inside myfunc
+      myfunc <- function() {y <- 1; ls()}
+      myfunc()                # shows "y"
+
+    ##  关键是一个作用域
+
+. 

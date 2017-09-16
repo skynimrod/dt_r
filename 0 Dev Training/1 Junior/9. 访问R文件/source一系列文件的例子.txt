@@ -1,0 +1,9 @@
+## If you want to source() a bunch of files, something like[＃如果你要源（）一堆文件，类似]
+## the following may be useful:[＃以下可能是有用的：]
+sourceDir <- function(path, trace = TRUE, ...) {
+    for (nm in list.files(path, pattern = "\\.[RrSsQq]$")) {
+       if(trace) cat(nm,":")           
+       source(file.path(path, nm), ...)
+       if(trace) cat("\n")
+    }
+}

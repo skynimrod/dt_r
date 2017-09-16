@@ -1,0 +1,12 @@
+. x. mean --   算数平均数  arithmetic mean
+
+   mean(x,...)
+
+   ## Default S3 method:
+   mean( x, trim = 0, na.rm = FALSE, ...)
+
+  例子:
+
+      x <- c(0:10, 50)     # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 50   总和是105， 总共12个元素， 算数平均数是105/12=8.75
+      xm <- mean(x)        # 8.75
+      c(xm, mean(x, trim = 0.10))   # trim 的意思是 截除分数fraction的设置, 为什么是后面的mean()结果是5.5？？   ？？？     

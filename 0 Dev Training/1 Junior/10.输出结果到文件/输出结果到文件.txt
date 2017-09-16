@@ -1,0 +1,14 @@
+. хГоб:
+
+   pdf(file='c:/hist.pdf')
+x=seq(1:30)
+y=2*x+1
+plot(y,x)
+dev.off()
+
+   bmp(file='c:/hist.bmp')
+x=seq(1:30)
+y=2*x+1
+plot(y,x)
+dev.off()
+

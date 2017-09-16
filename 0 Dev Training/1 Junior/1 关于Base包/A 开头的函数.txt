@@ -1,0 +1,649 @@
+. Base 包中 A 开头的R函数
+
+.1. abbreviate()  ---  缩略字符串
+
+    abbreviate(names.arg, minlength = 4, use.classes = TRUE,
+           dot = FALSE, strict = FALSE,
+           method = c("left.kept", "both.sides"))
+
+
+    例如:
+
+        x <- c("abcd", "efgh", "abce")
+        abbreviate(x, 2)                   # 表示把 向量 x 的第2个子元素缩略为保留前2个字符,实际上有些仍然是3个
+        abbreviate(x, 2, strict = TRUE)    # >> 1st and 3rd are == "ab", 表示严格要求所有的子元素都缩略为保留2个字符
+
+        (st.abb <- abbreviate(state.name, 2))     # 美国州名简写
+        table(nchar(st.abb))                      # out of 50, 3 need 4 letters :  统计州名简写字数，有3个州是4个字符
+        as <- abbreviate(state.name, 3, strict = TRUE)
+        as[which(as == "Mss")]             # 简写相同的
+
+        ## method="both.sides" helps:  no 4-letters, and only 4 3-letters:
+        st.ab2 <- abbreviate(state.name, 2, method = "both")         # 这个操作就严格按照2个字符来保留州名简写
+        table(nchar(st.ab2))               # 统计州名简写字符数
+        ## Compare the two methods:
+        cbind(st.abb, st.ab2)              # 比较2中方法的结果， 放在一张表中进行比较
+
+. 2. abs()   ---  绝对值函数
+
+     abs(x)
+     sqrt(x)            # 平方根函数
+
+     例子:
+
+        require(stats)                            # 统计包， for spline (样条函数)
+        require(graphics)                         # 图形包， 画图需要
+        xx <- -9:9
+        plot(xx, sqrt(abs(xx)),  col = "red")     # xx 为横坐标， sqrt(abs(xx)) 为纵坐标，画出计算点
+        lines(spline(xx, sqrt(abs(xx)), n=101), col = "pink")    # 把上面的点连接起来
+
+. 3. acos() ----  三角函数 反余弦
+
+    sin(x)      正弦函数
+  
+    cos(x)      余弦函数
+
+    tan(x)      正切函数
+
+    acos(x)     反余弦函数
+
+    asin(x)     反正弦函数
+
+    atan(x)     反正切函数
+
+    atan2(y,x)
+
+    cospi(x)
+
+    sinpi(x)
+
+    tanpi(x) 
+
+  例子:
+
+      x <- seq(-3, 7, by = 1/8)
+      tx <- cbind(x, cos(pi*x), cospi(x), sin(pi*x), sinpi(x),
+               tan(pi*x), tanpi(x), deparse.level=2)   # 计算各种三角函数， 然后建一个表格
+      op <- options(digits = 4, width = 90)            # for nice formatting, 进行格式化，留4个数字， 宽度90
+      head(tx)                                         # 查看tx 内容
+      tx[ (x %% 1) %in% c(0, 0.5) ,]   # tx 内容重新排列成新表(tx原始数据没变)， 按1 余 1 ，结果是0.5或0来区分
+      options(op)                                      # 优化op 
+
+. 4. acosh()  -------- Hyperbolic 函数   双曲线函数
+
+    cosh(x)    双余弦函数
+
+    sinh(x)    双正弦函数
+
+    tanh(x)    双正切函数
+
+    acosh(x)   双 反余弦函数
+
+    asinh(x)   双 反正弦函数
+
+    atanh(x)   双 反正切函数
+
+  例子：
+
+      暂缺
+
+. 5. addNA     -- 因数  ---------- 这一部分没有搞懂？？？？？？？？？？？？？？？？
+
+     factor( x = character(), levels, labels = levels, 
+             exclude = NA, ordered = is.ordered(x), nmax = NA )
+
+     ordered(x, ...)
+
+     is.factor(x)
+     is.ordered(x)
+
+     as.factor(x)
+     as.ordered(x)
+
+     addNA(x, ifany = FALSE )
+     
+  例子:
+
+    (ff <- factor(substring("statistics", 1:10, 1:10), levels = letters))     # 创建因子   列表
+    as.integer(ff)      # the internal codes                          # 显示内部整数
+    (f. <- factor(ff))  # drops the levels that do not occur          # 删除因子的字符级内容
+    ff[, drop = TRUE]   # the same, more transparently                # 另一种删除level 方法
+
+    factor(letters[1:20], labels = "letter")
+
+    class(ordered(4:1)) # "ordered", inheriting from "factor"
+    z <- factor(LETTERS[3:1], ordered = TRUE)
+    ## and "relational" methods work:
+    stopifnot(sort(z)[c(1,3)] == range(z), min(z) < max(z))
+ 
+
+    ## suppose you want "NA" as a level, and to allow missing values.
+    (x <- factor(c(1, 2, NA), exclude = NULL))
+    is.na(x)[2] <- TRUE
+    x  # [1] 1    <NA> <NA>
+    is.na(x)
+    # [1] FALSE  TRUE FALSE
+
+    ## Using addNA()
+    Month <- airquality$Month
+    table(addNA(Month))
+    table(addNA(Month, ifany = TRUE))
+
+. 6. addTaskCallback     --- 添加或删除一个顶级任务回调
+
+    addTaskCallback(f, data = NULL, name = character() )    注册一个R函数， 当一个顶级人物完成后就会被调用
+
+    removeTaskCallback(id)                                  注销上面的函数
+
+    相关的函数还有: getTaskCallbackNames, taskCallbackManager
+
+    例子:
+
+        times <- function(total = 3, str = "Task a") {
+            ctr <- 0
+ 
+            function(expr, value, ok, visible) {           # 这几个参数的用途不是很明白？？？？？
+                ctr <<- ctr + 1
+                cat(str, ctr, "\n")                        # 根据运行结果， 这一句会显示结果出来
+                if(ctr == total) {
+                    cat("handler removing itself\n")
+                }
+                return(ctr < total)
+            }
+         }
+
+         # add the callback that will work for
+         # 4 top-level tasks and then remove itself.   只为上面4个顶部的人物运行， 然后自动删除自己
+         n <- addTaskCallback(times(4))
+
+         # now remove it, assuming it is still first in the list.
+         removeTaskCallback(n)
+
+         ## Not run: 
+         #  There is no point in running this
+         # as
+         addTaskCallback(times(4))
+
+         sum(1:10)
+         sum(1:10)
+         sum(1:10)
+         sum(1:10)
+         sum(1:10)
+
+         ## End(Not run)
+
+. 7. agrep  ---- 模糊匹配， 其实就是找相似度最高的元素(或个数， 或元素位置)，可以参见vi 中grep 的使用。 
+
+     agrep(pattern, x, max.distance = 0.1, costs = NULL, ignore.case= FALSE, values = FALSE, 
+           fixed = TRUE, useBytes = FALSE)
+
+     agrep1(pattern, x, max.distance = 0.1, costs = NULL, ignore.case = FALSE, fixed = TRUE, useBytes = FALSE)
+
+    例子：
+
+       agrep("lasy", "1 lazy 2")
+       agrep("lasy", c(" 1 lazy 2", "1 lasy 2"), max = list(sub = 0))
+       agrep("laysy", c("1 lazy", "1", "1 LAZY"), max = 2)
+       agrep("laysy", c("1 lazy", "1", "1 LAZY"), max = 2, value = TRUE)    # value = TRUE, 表示返回元素本身内容
+       agrep("laysy", c("1 lazy", "1", "1 LAZY"), max = 2, ignore.case = TRUE) # 不区分大小写
+
+. 8. lists -  列表 数据对
+
+     list(...)            # ... 是对象， 可能已经命名
+     pairlist(...)
+
+     as.list(x, ...)
+     ## S3 method for class 'environment'
+     as.list(x, all.names = FALSE, sorted = FALSE, ...)
+     as.pairlist(x)
+
+     is.list(x)
+     is.pairlist(x)
+
+     alist(...)
+     
+  例子：
+
+      require(graphics)
+
+      # create a plotting structure
+      pts <- list(x = cars[,1], y = cars[,2])
+      plot(pts)
+
+      ## Adams  -- 奇怪，上面的几句就创建了一个点的分布图， cars 可能是graphics 包里面的数据
+
+      is.pairlist(.Options)  # a user-level pairlist    ？？？ 不知道这句干什么用？？？
+
+      ## "pre-allocate" an empty list of length 5， 申请长度为5 的空列表，显示内容都是NULL
+      vector("list", 5)
+
+      # Argument lists
+      f <- function() x
+      # Note the specification of a "..." argument:
+      formals(f) <- al <- alist(x = , y = 2+3, ... = )
+      f
+      al
+
+      ## environment->list coercion
+
+      e1 <- new.env()
+      e1$a <- 10
+      e1$b <- 20
+      as.list(e1)
+
+. 9. all   --- 所有为真？？  判断目标对象内容是否为真， 返回一个逻辑向量集合
+
+     all(..., na.rm = FALSE )
+
+     例子：
+
+         range(x <- sort(round(stats::rnorm(10) - 1.2, 1)))
+         if(all(x < 0)) cat("all x values are negative\n")     # print(x) 查看x 内容， 会发现最后一个元素是0.1，不符合
+
+         all(logical(0))  # true, as all zero of the elements are true.
+
+. 10. all.equal   --- 判断2个对象是否相等
+
+      all.equal(target, current, ... )
+
+      # S3 method for class 'numeric'
+      all.equal(target, current, tolerance = .Machine$double.eps ^ 0.5, scale = NULL, ..., check.attributes = TRUE)
+
+      ## S3 method for class 'list'
+      all.equal(target, current, ..., check.attributes = TRUE, use.names = TRUE)
+
+      ## S3 method for class 'environment'
+      all.equal(target, current, all.names=TRUE, ...)
+
+      ## S3 method for class 'POSIXt'
+      all.equal(target, current, ..., tolerance = 1e-3, scale)
+
+
+      attr.all.equal(target, current, ...,
+               check.attributes = TRUE, check.names = TRUE)
+
+    例子：
+
+        all.equal(pi, 355/113)                    # 奇怪， 查看pi和355/113 都是3.1415923，但是比较的时候可以判断出精度
+        # not precise enough (default tol) > relative error
+
+        d45 <- pi*(1/4 + 1:10)
+        stopifnot( all.equal( tan(d45), rep(1, 10) ) )          # TRUE, but
+        all      (tan(d45) == rep(1, 10))         # FALSE, since not exactly    因为不精确
+        all.equal(tan(d45), rep(1, 10), tolerance = 0)  # to see difference, tolerance 是限度
+
+        ## advanced: equality of environments
+        ae <- all.equal( as.environment("package:stats"), asNamespace("stats") )         ## ??? 没看懂？？？？
+        stopifnot( is.character(ae), length(ae) > 10,
+           ## were incorrectly "considered equal" in R <= 3.1.1
+           all.equal(asNamespace("stats"), asNamespace("stats")))
+
+. 11. all.names   ----- 返回表达式中所有的名字 或变量  , 这个功能很好玩，也许有奇效， 特别是动态编程
+
+     all.names(expr, functions = TRUE, max.names = -1L, unique = FALSE)
+
+     all.vars(expr, functions = FALSE, max.names = -1L, unique = TRUE)
+
+   例子：
+
+       all.names(expression(sin(x+y)))
+       all.names(quote(sin(x+y))) # or a call
+       all.vars(expression(sin(x+y)))
+
+. 12. any  ---   给出一个逻辑向量集合， 至少有一个是true
+
+     any( ..., na.rm = FALSE )
+
+  例子：
+
+      range(x <- sort(round(stats::rnorm(10) - 1.2, 1)))
+      if(any(x < 0)) cat("x contains negative values\n")   # 感觉 R 中的cat 类似于 C/Java中的print
+
+. 13. anyDuplicated  --- 复制元素
+
+   duplicated(x, incomparables = FALSE, ...)
+
+   ## Default S3 method:
+   duplicated(x, incomparables = FALSE,
+           fromLast = FALSE, nmax = NA, ...)
+
+   ## S3 method for class 'array'
+   duplicated(x, incomparables = FALSE, MARGIN = 1,
+           fromLast = FALSE, ...)
+
+   anyDuplicated(x, incomparables = FALSE, ...)
+   ## Default S3 method:
+   anyDuplicated(x, incomparables = FALSE,
+           fromLast = FALSE, ...)
+   ## S3 method for class 'array'
+   anyDuplicated(x, incomparables = FALSE,
+           MARGIN = 1, fromLast = FALSE, ...)
+
+  例子:
+
+      x <- c(9:20, 1:5, 3:7, 0:8)
+      ## extract unique elements
+      (xu <- x[!duplicated(x)])
+      ## similar, same elements but different order:
+      (xu2 <- x[!duplicated(x, fromLast = TRUE)])
+
+      ## xu == unique(x) but unique(x) is more efficient
+      stopifnot(identical(xu,  unique(x)),
+           identical(xu2, unique(x, fromLast = TRUE)))
+
+      duplicated(iris)[140:143]       # iris  ??? 啥东西？？？ 虹膜？？
+
+      duplicated(iris3, MARGIN = c(1, 3))    # iris3 ???  又是啥东西？？
+      anyDuplicated(iris) ## 143
+
+      anyDuplicated(x)
+      anyDuplicated(x, fromLast = TRUE)
+
+. 14. anyMissing --   不可用/丢失的值  NA    
+
+      NA 是一个长度为1 的逻辑常量。 包括一个missing 值指针.  可以指向任何一个向量类型除了 raw. 
+
+      NA
+
+      is.na(x)
+
+      anyNA(x, recursive = FALSE)
+
+      ## S3 method for class 'data.frame'
+      is.na(x)
+
+      is.na(x) <- value
+
+   例子：
+
+       is.na(c(1, NA))        #> FALSE  TRUE
+       is.na(paste(c(1, NA))) #> FALSE FALSE
+
+       (xx <- c(0:4))
+        is.na(xx) <- c(2, 4)
+        xx                     #> 0 NA  2 NA  4
+        anyNA(xx) # TRUE
+
+        # Some logical operations do not return NA
+        c(TRUE, FALSE) & NA
+        c(TRUE, FALSE) | NA
+
+
+        ## Measure speed difference in a favourable case:
+        ## the difference depends on the platform, on most ca 3x.
+        x <- 1:10000; x[5000] <- NaN  # coerces x to be double
+        if(require("microbenchmark")) { # does not work reliably on all platforms
+            print(microbenchmark(any(is.na(x)), anyNA(x)))
+        } else {
+            nSim <- 2^13
+            print(rbind(is.na = system.time(replicate(nSim, any(is.na(x)))),
+              anyNA = system.time(replicate(nSim, anyNA(x)))))
+        }
+
+
+        ## anyNA() can work recursively with list()s:
+        LL <- list(1:5, c(NA, 5:8), c("A","NA"), c("a", NA_character_))
+        L2 <- LL[c(1,3)]
+        sapply(LL, anyNA); c(anyNA(LL), anyNA(LL, TRUE))
+        sapply(L2, anyNA); c(anyNA(L2), anyNA(L2, TRUE))
+
+        ## ... lists, and hence data frames, too:
+        dN <- dd <- USJudgeRatings; dN[3,6] <- NA
+        anyNA(dd) # FALSE
+        anyNA(dN) # TRUE
+
+. 15. anyNA.numeric version    ---  数字版本, 主要是进行版本判断的
+
+     numeric_version(x, strict = TRUE)
+     package_version(x, strict = TRUE)
+     R_system_version(x, strict = TRUE)
+     getRversion()
+
+  例子:
+
+      x <- package_version(c("1.2-4", "1.2-3", "2.1"))
+      x < "1.4-2.3"
+      c(min(x), max(x))
+      x[2, 2]
+      x$major
+      x$minor
+
+      if(getRversion() <= "2.5.0") { ## work around missing feature
+          cat("Your version of R, ", as.character(getRversion()),
+              ", is outdated.\n",
+              "Now trying to work around that ...\n", sep = "")
+      }
+
+      x[[c(1, 3)]]  # '4' as a numeric vector, same as x[1, 3]
+      x[1, 3]      # 4 as an integer
+      x[[2, 3]] <- 0   # zero the patchlevel
+      x[[c(2, 3)]] <- 0 # same
+      x
+      x[[3]] <- "2.2.3"; x
+      x <- c(x, package_version("0.0"))
+      is.na(x)[4] <- TRUE
+      stopifnot(identical(is.na(x), c(rep(FALSE,3), TRUE)),
+	     anyNA(x))
+
+. 16. anyNA.POSIXlt           --- 日期时间类
+
+      # S3 method for class 'POSIXct'
+      print(x, ...)
+
+      ## S3 method for class 'POSIXct'
+      summary(object, digits = 15, ...)
+
+      time + z
+      z + time
+      time - z
+      time1 lop time2
+
+   例子:
+
+       (z <- Sys.time())             # the current date, as class "POSIXct"
+
+       Sys.time() - 3600             # an hour ago
+
+       as.POSIXlt(Sys.time(), "GMT") # the current time in GMT
+       format(.leap.seconds)         # the leap seconds in your time zone
+       print(.leap.seconds, tz = "PST8PDT")  # and in Seattle's
+
+       ## look at *internal* representation of "POSIXlt" :
+       leapS <- as.POSIXlt(.leap.seconds)
+       names(leapS) ; is.list(leapS)
+       ## str() "too smart" -->  need unclass(.):
+       utils::str(unclass(leapS), vec.len = 7)
+
+. 17. aperm  ---- 数组移位(transposition)
+
+      aperm(a, perm, ...)
+      ## Default S3 method:
+      aperm(a, perm = NULL, resize = TRUE, ...)
+      ## S3 method for class 'table'
+      aperm(a, perm = NULL, resize = TRUE, keep.class = TRUE, ...)
+
+      例子:
+
+          # interchange the first two subscripts on a 3-way array x
+          x  <- array(1:24, 2:4)           # 表示是3维的数组， 下标上限分别是2，3，4 
+          xt <- aperm(x, c(2,1,3))         # 修改x 数组的维度大小
+          stopifnot(t(xt[,,2]) == x[,,2],
+                                  t(xt[,,3]) == x[,,3],
+                                  t(xt[,,4]) == x[,,4])
+
+          UCB <- aperm(UCBAdmissions, c(2,1,3))
+          UCB[1,,]
+          summary(UCB) # UCB is still a continency table
+
+   ## 注意这儿的数组的应用, 是不同于C/JAVA 等开发工具的.   数组类似于矩阵， 但是维度可以大于2.    
+
+   array(1:3, c(2,4)) # recycle 1:3 "2 2/3 times"
+   #     [,1] [,2] [,3] [,4]
+   #[1,]    1    3    2    1
+   #[2,]    2    1    3    2
+  
+   # 第二个参数c(2,4) 的作用是什么哪？是各个维度下标的最大值，C(2,4) 表示是2维，第一维度是2(x坐标)， 第二维度是4(y坐标)。 第一个参数是数组中的数据。
+
+. 18. append ---  向量的合并 merging
+
+     append( x, values, after = length(x) )
+
+  例子:
+
+      append(1:5, 0:1, after = 3)    # 结果是:   [1] 1 2 3 0 1 4 5,  在第三个后面添加了0 1
+
+. 19. apply  --- 返回一个 向量 或者 数组 或者 列表，
+
+     apply( x, MARGIN, FUN, ... )
+
+  例子:
+
+      ## Compute row and column sums for a matrix:
+      x <- cbind(x1 = 3, x2 = c(4:1, 2:5))
+      dimnames(x)[[1]] <- letters[1:8]
+      apply(x, 2, mean, trim = .2)         # 2 表示是col (1是row) ,  mean 是要执行的函数
+      col.sums <- apply(x, 2, sum)
+      row.sums <- apply(x, 1, sum)
+      rbind(cbind(x, Rtot = row.sums), Ctot = c(col.sums, sum(col.sums)))
+
+      stopifnot( apply(x, 2, is.vector))
+
+      ## Sort the columns of a matrix
+      apply(x, 2, sort)
+
+      ## keeping named dimnames
+      names(dimnames(x)) <- c("row", "col")
+      x3 <- array(x, dim = c(dim(x),3),
+	         dimnames = c(dimnames(x), list(C = paste0("cop.",1:3))))
+      identical(x,  apply( x,  2,  identity))
+      identical(x3, apply(x3, 2:3, identity))
+
+      ##- function with extra args:
+      cave <- function(x, c1, c2) c(mean(x[c1]), mean(x[c2]))
+      apply(x, 1, cave,  c1 = "x1", c2 = c("x1","x2"))
+
+      ma <- matrix(c(1:4, 1, 6:8), nrow = 2)
+      ma
+      apply(ma, 1, table)  #--> a list of length 2
+      apply(ma, 1, stats::quantile) # 5 x n matrix with rownames
+
+      stopifnot(dim(ma) == dim(apply(ma, 1:2, sum)))
+
+      ## Example with different lengths for each call
+      z <- array(1:24, dim = 2:4)
+      zseq <- apply(z, 1:2, function(x) seq_len(max(x)))
+      zseq         ## a 2 x 3 matrix
+      typeof(zseq) ## list
+      dim(zseq) ## 2 3
+      zseq[1,]
+      apply(z, 3, function(x) seq_len(max(x)))
+      # a list without a dim attribute
+
+. 20. Arg(z)   -----  R 中的复数    , 估计是角度
+
+      complex(length.out = 0, real = numeric(), imaginary = numeric(), modulus = 1, argument = 0 )
+
+      as.complex(x,...)
+      is.complex(x)
+
+      Re(z)
+      Im(z)
+      Mod(z)
+      Arg(z)
+      Conj(z)
+
+    例子:
+
+        require(graphics)
+
+        0i ^ (-3:3)
+
+        matrix(1i^ (-6:5), nrow = 4) #- all columns are the same
+        0 ^ 1i # a complex NaN
+
+        ## create a complex normal vector
+        z <- complex(real = stats::rnorm(100), imaginary = stats::rnorm(100))
+        ## or also (less efficiently):
+        z2 <- 1:2 + 1i*(8:9)
+
+        ## The Arg(.) is an angle:
+        zz <- (rep(1:4, len = 9) + 1i*(9:1))/10
+        zz.shift <- complex(modulus = Mod(zz), argument = Arg(zz) + pi)
+        plot(zz, xlim = c(-1,1), ylim = c(-1,1), col = "red", asp = 1,
+                main = expression(paste("Rotation by "," ", pi == 180^o)))
+        abline(h = 0, v = 0, col = "blue", lty = 3)
+        points(zz.shift, col = "orange")
+
+. 21. args()  ----   函数的参数列表
+
+      args(name)
+
+     例子:
+
+         args(c)
+         args(graphics::plot.default)
+
+. 22. Arithmetic -----  算术操作符
+
+      + x
+      - x
+      x + y
+      x - y
+      x * y
+      x / y
+      x ^ y
+      x %% y
+      x %/% y
+
+      %*% 用于矩阵相乘
+
+   例子:
+
+      x <- -1:12
+      x + 1
+      2 * x + 3
+      x %% 2 #-- is periodic    2取模
+      x %/% 5           #  ？？？？？？
+
+. 23. array()   -- 创建或测试 数组
+
+    array(data=NA, dim=length(data), dimnames = NULL )
+    as.array(x, ...)
+    is.array(x)
+
+   例子:
+
+       dim(as.array(letters))
+       array(1:3, c(2,4)) # recycle 1:3 "2 2/3 times"
+       #     [,1] [,2] [,3] [,4]
+       #[1,]    1    3    2    1
+       #[2,]    2    1    3    2
+
+. 24. arrayInd() ------   哪个显示为true
+
+      which(x, arr.ind = FALSE, useNames = TRUE)
+      arrayInd(ind, .dim, .dimnames = NULL, useNames = FALSE)
+
+    例子:
+
+        which(LETTERS == "R")
+        which(ll <- c(TRUE, FALSE, TRUE, NA, FALSE, FALSE, TRUE)) #> 1 3 7
+        names(ll) <- letters[seq(ll)]
+        which(ll)
+        which((1:12)%%2 == 0) # which are even?
+        which(1:10 > 3, arr.ind = TRUE)
+
+        ( m <- matrix(1:12, 3, 4) )
+        div.3 <- m %% 3 == 0
+        which(div.3)
+        which(div.3, arr.ind = TRUE)
+        rownames(m) <- paste("Case", 1:3, sep = "_")
+        which(m %% 5 == 0, arr.ind = TRUE)
+
+        dim(m) <- c(2, 2, 3); m
+        which(div.3, arr.ind = FALSE)
+        which(div.3, arr.ind = TRUE)
+
+        vm <- c(m)
+        dim(vm) <- length(vm) #-- funny thing with  length(dim(...)) == 1
+        which(div.3, arr.ind = TRUE)
